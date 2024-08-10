@@ -1,17 +1,13 @@
 package com.connect.acts.ActsConnectBackend.model;
 
-public enum JobType {
-    FULL_TIME("Full-time job"),
-    PART_TIME("Part-time job"),
-    INTERNSHIP("Internship"),
-    CONTRACT("Contract job"),
-    FREELANCE("Freelance job"),
-    REMOTE("Remote job"),
-    VOLUNTEER("Volunteer job");
+public enum UserStatus {
+    ACTIVE("Active"),
+    INACTIVE("Inactive"),
+    SUSPENDED("Suspended");
 
     private final String description;
 
-    JobType(String description) {
+    UserStatus(String description) {
         this.description = description;
     }
 

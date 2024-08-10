@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.util.Date;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -48,4 +50,23 @@ public class Job {
 
   @Enumerated(EnumType.STRING)
   private JobStatus jobStatus = JobStatus.OPEN; // Open, Closed, etc.
+
+  @Column(nullable = false, updatable = false)
+  @Temporal(TemporalType.TIMESTAMP)
+  private Date createdDate;
+
+  @Column(nullable = false)
+  @Temporal(TemporalType.TIMESTAMP)
+  private Date modifiedDate;
+
+  @PrePersist
+  public void prePersist() {
+      createdDate = new Date();
+      modifiedDate = new Date();
+  }
+
+  @PreUpdate
+  public void preUpdate() {
+      modifiedDate = new Date();
+  }
 }

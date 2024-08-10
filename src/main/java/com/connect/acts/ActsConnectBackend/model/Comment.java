@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.util.Date;
 import java.util.Set;
 import java.util.UUID;
 
@@ -37,5 +38,25 @@ public class Comment {
   private Comment parentComment;
 
   @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OrderBy("createdDate ASC")
   private Set<Comment> replies;
+
+  @Column(nullable = false, updatable = false)
+  @Temporal(TemporalType.TIMESTAMP)
+  private Date createdDate;
+
+  @Column(nullable = false)
+  @Temporal(TemporalType.TIMESTAMP)
+  private Date modifiedDate;
+
+  @PrePersist
+  public void prePersist() {
+      createdDate = new Date();
+      modifiedDate = new Date();
+  }
+
+  @PreUpdate
+  public void preUpdate() {
+      modifiedDate = new Date();
+  }
 }
