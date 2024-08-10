@@ -1,6 +1,8 @@
 package com.connect.acts.ActsConnectBackend.config;
 
 import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
@@ -10,19 +12,24 @@ import java.sql.SQLException;
 @Component
 public class DatabaseConnectionChecker {
 
-  private final DataSource dataSource;
+    private static final Logger logger = LoggerFactory.getLogger(DatabaseConnectionChecker.class);
 
-  public DatabaseConnectionChecker(DataSource dataSource) {
-    this.dataSource = dataSource;
-  }
+    private final DataSource dataSource;
 
-  @PostConstruct
-  public void checkConnection() throws SQLException {
-    try (Connection connection = dataSource.getConnection()) {
-      System.out.println("Database connection established successfully!");
-    } catch (SQLException e) {
-      System.err.println("Failed to establish database connection.");
-      e.printStackTrace();
+    public DatabaseConnectionChecker(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
-  }
+
+    @PostConstruct
+    public void checkConnection() {
+        try (Connection connection = dataSource.getConnection()) {
+            if (connection.isValid(2)) {
+                logger.info("Database connection established successfully!");
+            } else {
+                logger.error("Database connection is not valid.");
+            }
+        } catch (SQLException e) {
+            logger.error("Failed to establish database connection.", e);
+        }
+    }
 }

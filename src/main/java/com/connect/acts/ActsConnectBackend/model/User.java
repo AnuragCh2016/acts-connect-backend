@@ -33,12 +33,14 @@ public class User {
     private String name;
 
     @Column(nullable = false)
-    private int batchYear;
+    private int batchYear; // Assume this represents the year of the batch the user belongs to
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private UserType userType;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Course courseType;
 
     @Enumerated(EnumType.STRING)
@@ -55,34 +57,32 @@ public class User {
     private Set<Comment> comments = new HashSet<>();
 
     @ManyToMany
-    @JoinTable(name = "user_followers",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "follower_id"))
+    @JoinTable(name = "user_followers", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "follower_id"))
     private Set<User> followers = new HashSet<>();
 
     @Column
-    private String company;
+    private String company; // Optional, company where the user is currently working
 
     @Column
-    private String profilePictureUrl;
+    private String profilePictureUrl; // URL to the user's profile picture
 
     @Column(nullable = false)
-    private boolean approved = false;
+    private boolean approved = false; // Approval status of the user
 
     @Column(nullable = false)
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt; // Timestamp when the user was created
 
     @Column(nullable = false)
-    private LocalDateTime updatedAt;
+    private LocalDateTime updatedAt; // Timestamp when the user was last updated
 
     @Enumerated(EnumType.STRING)
-    private UserStatus status;
+    private UserStatus status; // Status of the user (e.g., active, inactive)
 
     @Column(length = 500)
-    private String bio;
+    private String bio; // Short bio or description of the user
 
     @Column(length = 100)
-    private String location;
+    private String location; // User's location or city
 
     @PrePersist
     public void prePersist() {
@@ -93,5 +93,9 @@ public class User {
     @PreUpdate
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public void setUserStatus(UserStatus status) {
+        this.status = status;
     }
 }

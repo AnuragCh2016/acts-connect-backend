@@ -4,10 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.UuidGenerator;
 
-import java.util.Date;
-import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -15,58 +12,41 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 public class Job {
-  @Id
-  @GeneratedValue(generator = "uuid2")
-  @UuidGenerator
-  @Column(updatable = false, nullable = false)
-  private UUID id;
 
-  @Column(nullable = false)
-  private String companyName;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO) // Using AUTO strategy to generate UUID
+    @Column(updatable = false, nullable = false)
+    private UUID id;
 
-  @Column(nullable = false)
-  private String jobTitle;
+    @Column(nullable = false)
+    private String companyName;
 
-  @Column(nullable = false)
-  private String jobDescription;  // ideally in markdown
+    @Column(nullable = false)
+    private String jobTitle;
 
-  @Column(nullable = false)
-  private String jobLocation;
+    @Column(nullable = false)
+    private String jobDescription; // Ideally in markdown
 
-  @Enumerated(EnumType.STRING)
-  private JobType jobType = JobType.FULL_TIME; // Full-time, Part-time, Internship, Contract, etc.
+    @Column(nullable = false)
+    private String jobLocation;
 
-  @Column
-  private int minExperience;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private JobType jobType = JobType.FULL_TIME; // Full-time, Part-time, Internship, Contract, etc.
 
-  @Column
-  private double salary;
+    @Column
+    private int minExperience;
 
-  @Column(nullable = false)
-  private int numOpenPositions;
+    @Column
+    private double salary;
 
-  @Column
-  private String applicationLink;
+    @Column(nullable = false)
+    private int numOpenPositions;
 
-  @Enumerated(EnumType.STRING)
-  private JobStatus jobStatus = JobStatus.OPEN; // Open, Closed, etc.
+    @Column
+    private String applicationLink;
 
-  @Column(nullable = false, updatable = false)
-  @Temporal(TemporalType.TIMESTAMP)
-  private Date createdDate;
-
-  @Column(nullable = false)
-  @Temporal(TemporalType.TIMESTAMP)
-  private Date modifiedDate;
-
-  @PrePersist
-  public void prePersist() {
-      createdDate = new Date();
-      modifiedDate = new Date();
-  }
-
-  @PreUpdate
-  public void preUpdate() {
-      modifiedDate = new Date();
-  }
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private JobStatus jobStatus = JobStatus.OPEN; // Open, Closed, etc.
 }

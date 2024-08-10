@@ -1,5 +1,8 @@
 package com.connect.acts.ActsConnectBackend.model;
 
+import lombok.Getter;
+
+@Getter
 public enum UserStatus {
     ACTIVE("Active"),
     INACTIVE("Inactive"),
@@ -11,9 +14,6 @@ public enum UserStatus {
         this.description = description;
     }
 
-    public String getDescription() {
-        return description;
-    }
 
     @Override
     public String toString() {
