@@ -23,6 +23,9 @@ public class User {
     @Column(updatable = false, nullable = false)
     private UUID id;
 
+    @Column(length = 12)
+    private String prn;
+
     @Column(unique = true, nullable = false)
     private String email;
 
@@ -56,9 +59,16 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Comment> comments = new HashSet<>();
 
-    @ManyToMany
-    @JoinTable(name = "user_followers", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "follower_id"))
+    @ManyToMany(mappedBy = "following")
     private Set<User> followers = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_following",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "following_id")
+    )
+    private Set<User> following = new HashSet<>();
 
     @Column
     private String company; // Optional, company where the user is currently working
