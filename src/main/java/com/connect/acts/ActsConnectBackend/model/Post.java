@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
 
@@ -18,13 +19,13 @@ public class Post {
   @Id
   @GeneratedValue(generator = "uuid2")
   @UuidGenerator
-  @Column(updatable = false, nullable = false)
+  @Column(updatable = false, nullable = false, columnDefinition = "BINARY(16)")
   private UUID id;
 
   @Column(nullable = false)
   private String title;
 
-  @Column(length = 500)
+  @Column(columnDefinition = "TEXT")
   private String content;
 
   @ManyToOne
@@ -39,4 +40,26 @@ public class Post {
           joinColumns = @JoinColumn(name = "post_id"),
           inverseJoinColumns = @JoinColumn(name = "user_id"))
   private Set<User> likedByUsers;
+
+  @Column
+  private boolean isDummy = false; // Indicates if the post is a dummy post
+
+  @Transient
+  private int numberOfLikes; // Not persisted, used for displaying likes count
+
+  @Column(name = "created_at", nullable = false, updatable = false)
+  private LocalDateTime createdAt = LocalDateTime.now();
+
+  @Column(name = "updated_at", nullable = false)
+  private LocalDateTime updatedAt = LocalDateTime.now();
+
+  @PrePersist
+  protected void onCreate() {
+    createdAt = LocalDateTime.now();
+  }
+
+  @PreUpdate
+  protected void onUpdate() {
+    updatedAt = LocalDateTime.now();
+  }
 }
