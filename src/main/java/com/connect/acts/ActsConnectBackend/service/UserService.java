@@ -38,4 +38,25 @@ public class UserService {
   public Set<User> getFollowing(User user) {
     return user.getFollowing();
   }
+
+  public void followUser(User follower, User user) {
+    if (follower.equals(user)) {
+      throw new IllegalArgumentException("Users cannot follow themselves.");
+    }
+
+    follower.getFollowing().add(user);
+    user.getFollowers().add(follower);
+
+    userRepo.save(follower);
+    userRepo.save(user);
+  }
+
+  public void unfollowUser(User follower, User user) {
+    follower.getFollowing().remove(user);
+    user.getFollowers().remove(follower);
+
+    userRepo.save(follower);
+    userRepo.save(user);
+  }
 }
+

@@ -8,13 +8,11 @@ import com.connect.acts.ActsConnectBackend.service.PostService;
 import com.connect.acts.ActsConnectBackend.service.UserService;
 import com.connect.acts.ActsConnectBackend.utils.JwtUtil;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/user")
@@ -58,4 +56,52 @@ public class UserController {
     return ResponseEntity.ok(postResponse);
   }
 
+  @PostMapping("/follow/{userId}")
+  public ResponseEntity<String> followUser(@RequestHeader("Authorization") String token, @PathVariable UUID userId) {
+    // Extract the email from the token
+    String email = extractEmailFromToken(token);
+
+    // Get the logged-in user
+    User loggedInUser = userService.findByEmail(email);
+
+    // Find the user to follow
+    User userToFollow = userService.findById(userId);
+
+    if (userToFollow == null) {
+      return ResponseEntity.badRequest().body("User not found.");
+    }
+
+    // Perform the follow action
+    userService.followUser(loggedInUser, userToFollow);
+
+    return ResponseEntity.ok("Successfully followed the user.");
+  }
+
+  @PostMapping("/unfollow/{userId}")
+  public ResponseEntity<String> unfollowUser(@RequestHeader("Authorization") String token, @PathVariable UUID userId) {
+    // Extract the email from the token
+    String email = extractEmailFromToken(token);
+
+    // Get the logged-in user
+    User loggedInUser = userService.findByEmail(email);
+
+    // Find the user to unfollow
+    User userToUnfollow = userService.findById(userId);
+
+    if (userToUnfollow == null) {
+      return ResponseEntity.badRequest().body("User not found.");
+    }
+
+    // Perform the unfollow action
+    userService.unfollowUser(loggedInUser, userToUnfollow);
+
+    return ResponseEntity.ok("Successfully unfollowed the user.");
+  }
+
+  private String extractEmailFromToken(String token) {
+    if (token.startsWith("Bearer ")) {
+      token = token.substring(7);
+    }
+    return jwtUtil.extractEmail(token);
+  }
 }
