@@ -6,10 +6,7 @@ import com.connect.acts.ActsConnectBackend.model.User;
 import com.connect.acts.ActsConnectBackend.repo.PostRepo;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,5 +41,9 @@ public class PostService {
     }
 
     return posts;
+  }
+  public Post findById(UUID postId) {
+    Optional<Post> post = postRepo.findById(postId);
+    return post.orElse(null); // or throw an exception if preferred
   }
 }
