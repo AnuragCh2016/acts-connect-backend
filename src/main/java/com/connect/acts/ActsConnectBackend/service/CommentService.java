@@ -7,6 +7,8 @@ import com.connect.acts.ActsConnectBackend.model.User;
 import com.connect.acts.ActsConnectBackend.repo.CommentRepo;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 public class CommentService {
 
@@ -21,6 +23,7 @@ public class CommentService {
     comment.setText(commentRequest.getText());
     comment.setPost(post);
     comment.setUser(user);
+    comment.setUpdatedAt(LocalDateTime.now());
     return commentRepo.save(comment);
   }
 }

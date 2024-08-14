@@ -8,6 +8,7 @@ import com.connect.acts.ActsConnectBackend.model.User;
 import com.connect.acts.ActsConnectBackend.service.CommentService;
 import com.connect.acts.ActsConnectBackend.service.PostService;
 import com.connect.acts.ActsConnectBackend.service.UserService;
+import com.connect.acts.ActsConnectBackend.utils.JwtUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,11 +23,13 @@ public class CommentController {
     private final CommentService commentService;
     private final UserService userService;
     private final PostService postService;
+    private final JwtUtil jwtUtil;
 
-    public CommentController(CommentService commentService, UserService userService, PostService postService) {
+    public CommentController(CommentService commentService, UserService userService, PostService postService, JwtUtil jwtUtil) {
         this.commentService = commentService;
         this.userService = userService;
         this.postService = postService;
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/create")
@@ -53,6 +56,6 @@ public class CommentController {
             token = token.substring(7);
         }
         // Use JwtUtil or similar to extract the email
-        return "email@example.com"; // Replace with actual extraction logic
+        return jwtUtil.extractEmail(token); // Replace with actual extraction logic
     }
 }
