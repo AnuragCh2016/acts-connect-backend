@@ -1,11 +1,13 @@
 package com.connect.acts.ActsConnectBackend.service;
 
+import com.connect.acts.ActsConnectBackend.dto.UserSearchRequest;
 import com.connect.acts.ActsConnectBackend.model.User;
 import com.connect.acts.ActsConnectBackend.model.UserType;
 import com.connect.acts.ActsConnectBackend.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -57,6 +59,16 @@ public class UserService {
 
     userRepo.save(follower);
     userRepo.save(user);
+  }
+
+  public List<User> searchUsers(UserSearchRequest searchRequest) {
+    return userRepo.searchUsers(
+      searchRequest.getName(),
+      searchRequest.getMinBatchYear(),
+      searchRequest.getMaxBatchYear(),
+      searchRequest.getCompany(),
+      searchRequest.getCourseType()
+    );
   }
 }
 

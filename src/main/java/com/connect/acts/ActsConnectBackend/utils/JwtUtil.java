@@ -37,7 +37,6 @@ public class JwtUtil {
     if (token.startsWith("Bearer ")) {
       token = token.substring(7);
     }
-    System.out.println("Token before parsing: " + token); // Add logging
     return Jwts.parserBuilder()
       .setSigningKey(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()))
       .build()

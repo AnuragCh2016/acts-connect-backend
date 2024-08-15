@@ -2,15 +2,19 @@ package com.connect.acts.ActsConnectBackend.controller;
 
 import com.connect.acts.ActsConnectBackend.dto.PostDTO;
 import com.connect.acts.ActsConnectBackend.dto.PostResponse;
+import com.connect.acts.ActsConnectBackend.dto.UserResponseDTO;
+import com.connect.acts.ActsConnectBackend.dto.UserSearchRequest;
 import com.connect.acts.ActsConnectBackend.model.User;
 import com.connect.acts.ActsConnectBackend.service.PostService;
 import com.connect.acts.ActsConnectBackend.service.UserService;
 import com.connect.acts.ActsConnectBackend.utils.JwtUtil;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/user")
@@ -105,5 +109,50 @@ public class UserController {
       token = token.substring(7);
     }
     return jwtUtil.extractEmail(token);
+  }
+
+
+  @PostMapping("/search")
+  public ResponseEntity<List<UUID>> searchUsers(@RequestHeader("Authorization") String token, @RequestBody UserSearchRequest searchRequest) {
+
+    // Extract the email from the token
+    String email = extractEmailFromToken(token);
+
+    // Check logged in user
+    User loggedInUser = userService.findByEmail(email);
+
+    if (loggedInUser == null) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+    }
+
+    List<User> users = userService.searchUsers(searchRequest);
+
+    List<UUID> userIds = users.stream()
+      .map(User::getId)
+      .collect(Collectors.toList());
+
+    return new ResponseEntity<>(userIds, HttpStatus.OK);
+  }
+
+  // frontend can make a call to this endpoint to get the user details by id for each id
+  // gotten from /search
+  @GetMapping("/{id}")
+  public ResponseEntity<UserResponseDTO> getUser(@PathVariable UUID id) {
+    User user = userService.findById(id);
+
+    if (user == null) {
+      return ResponseEntity.notFound().build();
+    }
+
+    UserResponseDTO userResponseDTO = new UserResponseDTO(
+      user.getId(),
+      user.getName(),
+      user.getEmail(),
+      user.getCompany(),
+      user.getCourseType(),
+      user.getBatchYear()
+    );
+
+    return ResponseEntity.ok(userResponseDTO);
   }
 }
