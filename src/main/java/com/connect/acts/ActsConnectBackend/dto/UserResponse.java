@@ -13,6 +13,4 @@ import lombok.Setter;
 public class UserResponse {
   private int status;
   private String jwtToken;
-//  private String followerId;
-//  private String userId;
 }
