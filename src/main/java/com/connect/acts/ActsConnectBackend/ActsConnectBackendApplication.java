@@ -22,6 +22,10 @@ public class ActsConnectBackendApplication {
 		System.setProperty("DEV_DB_URL", dotenv.get("DEV_DB_URL"));
 		System.setProperty("DEV_DB_UNAME", dotenv.get("DEV_DB_UNAME"));
 		System.setProperty("DEV_DB_PWD", dotenv.get("DEV_DB_PWD"));
+
+		// set CORS origin
+		System.setProperty("CORS_ORIGINS", dotenv.get("CORS_ORIGINS"));
+
 		SpringApplication.run(ActsConnectBackendApplication.class, args);
 	}
 }
