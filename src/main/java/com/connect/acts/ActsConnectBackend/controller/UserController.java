@@ -1,7 +1,14 @@
 package com.connect.acts.ActsConnectBackend.controller;
 
 import com.connect.acts.ActsConnectBackend.dto.*;
+import com.connect.acts.ActsConnectBackend.dto.CommentRequest;
+import com.connect.acts.ActsConnectBackend.dto.CommentResponse;
+import com.connect.acts.ActsConnectBackend.dto.PostDTO;
+import com.connect.acts.ActsConnectBackend.dto.PostResponse;
+import com.connect.acts.ActsConnectBackend.model.Comment;
+import com.connect.acts.ActsConnectBackend.model.Post;
 import com.connect.acts.ActsConnectBackend.model.User;
+import com.connect.acts.ActsConnectBackend.service.CommentService;
 import com.connect.acts.ActsConnectBackend.service.PostService;
 import com.connect.acts.ActsConnectBackend.service.UserService;
 import com.connect.acts.ActsConnectBackend.utils.JwtUtil;
@@ -9,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -17,14 +25,19 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/user")
 public class UserController {
   private final JwtUtil jwtUtil;
+
   private final UserService userService;
 
   private final PostService postService;
 
-  public UserController(JwtUtil jwtUtil, UserService userService, PostService postService) {
+  private final CommentService commentService;
+
+
+  public UserController(JwtUtil jwtUtil, UserService userService, PostService postService, CommentService commentService) {
     this.jwtUtil = jwtUtil;
     this.userService = userService;
     this.postService = postService;
+    this.commentService = commentService;
   }
 
   // for posts
@@ -124,6 +137,27 @@ public class UserController {
 
     return ResponseEntity.ok("Successfully unfollowed the user.");
   }
+
+
+
+  @PostMapping("/comment/create")
+  public ResponseEntity<CommentResponse> createComment(
+          @RequestHeader("Authorization") String token,
+          @RequestBody @Valid CommentRequest commentRequest
+  ) {
+    String email = extractEmailFromToken(token);
+    User user = userService.findByEmail(email);
+    Post post = postService.findById(commentRequest.getPostId());
+    if (user == null || post == null) {
+      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    CommentResponse commentResponse = commentService.createComment(user, post, commentRequest);
+//    CommentResponse response = new CommentResponse(comment.getId(), comment.getText(), comment.getCreatedAt());
+
+    return new ResponseEntity<>(commentResponse, HttpStatus.CREATED);
+  }
+
 
   private String extractEmailFromToken(String token) {
     if (token.startsWith("Bearer ")) {

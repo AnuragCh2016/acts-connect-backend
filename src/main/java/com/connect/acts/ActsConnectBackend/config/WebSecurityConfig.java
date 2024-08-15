@@ -31,7 +31,8 @@ public class WebSecurityConfig {
     http
       .csrf(AbstractHttpConfigurer::disable)
       .authorizeHttpRequests(auth -> auth
-        .requestMatchers("/api/auth/**","/api/home").permitAll()
+        .requestMatchers("/api/auth/**","/api/home")
+              .permitAll()
         .anyRequest().authenticated()
       )
       .exceptionHandling(exception -> exception
@@ -45,4 +46,6 @@ public class WebSecurityConfig {
   public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
     return authenticationConfiguration.getAuthenticationManager();
   }
+
+
 }
