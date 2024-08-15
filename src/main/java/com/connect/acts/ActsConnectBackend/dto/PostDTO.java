@@ -21,4 +21,8 @@ public class PostDTO {
   private LocalDateTime updatedAt;
   private UUID userId; // minimal user info
   private String name; // minimal user info
+
+  public PostDTO(UUID id, String title, String content, LocalDateTime createdAt, UUID id1) {
+
+  }
 }

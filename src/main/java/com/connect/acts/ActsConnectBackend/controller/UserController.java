@@ -87,6 +87,42 @@ public class UserController {
     return ResponseEntity.ok(post);
   }
 
+  @PostMapping("/post/edit/{postId}")
+  public ResponseEntity<String> editPost(@RequestHeader("Authorization") String token,@PathVariable UUID postId,@RequestBody PostRequestDTO postRequestDTO){
+
+    String email = extractEmailFromToken(token);
+
+    User user = userService.findByEmail(email);
+
+    PostDTO updatedPost = postService.editPost(user, postId, postRequestDTO);
+
+    if (updatedPost == null) {
+      return ResponseEntity.notFound().build();
+    }
+    return ResponseEntity.ok("Successfully edited !");
+  }
+
+  @DeleteMapping("/post/delete/{postId}")
+  public ResponseEntity<String> deletePost(
+          @RequestHeader("Authorization") String token,
+          @PathVariable UUID postId
+  ) {
+    // Extract the email from the token
+    String email = extractEmailFromToken(token);
+
+    // Get the User
+    User user = userService.findByEmail(email);
+
+    // Delete the post
+    boolean deleted = postService.deletePost(user, postId);
+
+    if (!deleted) {
+      return ResponseEntity.notFound().build();
+    }
+
+    return ResponseEntity.ok("Post deleted successfully.");
+  }
+
   @PostMapping("/follow/{userId}")
   public ResponseEntity<String> followUser(@RequestHeader("Authorization") String token, @PathVariable UUID userId) {
     // Extract the email from the token
