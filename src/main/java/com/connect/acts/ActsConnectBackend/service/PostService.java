@@ -62,4 +62,33 @@ public class PostService {
     return post.orElse(null); // or throw an exception if preferred
   }
 
+  public PostDTO editPost(User user, UUID postId, PostRequestDTO postRequestDTO) {
+    Optional<Post> postOptional = postRepo.findById(postId);
+
+    if (postOptional.isPresent()) {
+      Post post = postOptional.get();
+      if (post.getUser().equals(user)) {
+        post.setTitle(postRequestDTO.getTitle());
+        post.setContent(postRequestDTO.getContent());
+        post = postRepo.save(post);
+        return new PostDTO(post.getId(), post.getTitle(), post.getContent(), post.getCreatedAt(), post.getUser().getId());
+      }
+    }
+    return null;
+  }
+
+  public boolean deletePost(User user, UUID postId) {
+    Optional<Post> postOptional = postRepo.findById(postId);
+
+    if (postOptional.isPresent()) {
+      Post post = postOptional.get();
+      if (post.getUser().equals(user)) {
+        postRepo.delete(post);
+        return true;
+      }
+    }
+    return false;
+  }
+
+
 }
