@@ -2,7 +2,6 @@ package com.connect.acts.ActsConnectBackend.controller;
 
 import com.connect.acts.ActsConnectBackend.dto.PostDTO;
 import com.connect.acts.ActsConnectBackend.dto.PostResponse;
-import com.connect.acts.ActsConnectBackend.model.Post;
 import com.connect.acts.ActsConnectBackend.model.User;
 import com.connect.acts.ActsConnectBackend.service.PostService;
 import com.connect.acts.ActsConnectBackend.service.UserService;
@@ -10,7 +9,6 @@ import com.connect.acts.ActsConnectBackend.utils.JwtUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,18 +28,13 @@ public class UserController {
 
   @GetMapping("/posts")
   public ResponseEntity<PostResponse> getPosts(@RequestHeader("Authorization") String token) {
-    System.out.println("Original token: "+token);
     // if token is Bearer type remove it
     if (token.startsWith("Bearer ")) {
       token = token.substring(7);
     }
 
-    System.out.println("Token after removing Bearer: "+token);
-
     // extract email
     String email = jwtUtil.extractEmail(token);
-
-    System.out.println("Email extracted from token: "+email);
 
     // get User
     User user = userService.findByEmail(email);
@@ -69,6 +62,10 @@ public class UserController {
 
     if (userToFollow == null) {
       return ResponseEntity.badRequest().body("User not found.");
+    } else if(userToFollow == loggedInUser) {
+      return ResponseEntity.badRequest().body("You cannot follow yourself.");
+    } else if(loggedInUser.getFollowing().contains(userToFollow)) {
+      return ResponseEntity.badRequest().body("You are already following this user.");
     }
 
     // Perform the follow action
@@ -90,6 +87,11 @@ public class UserController {
 
     if (userToUnfollow == null) {
       return ResponseEntity.badRequest().body("User not found.");
+    }
+
+    // Check if the user is part of the following list
+    if (!loggedInUser.getFollowing().contains(userToUnfollow)) {
+      return ResponseEntity.badRequest().body("User is not in your following list.");
     }
 
     // Perform the unfollow action
