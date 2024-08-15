@@ -1,6 +1,7 @@
 package com.connect.acts.ActsConnectBackend.service;
 
 import com.connect.acts.ActsConnectBackend.dto.PostDTO;
+import com.connect.acts.ActsConnectBackend.dto.PostRequestDTO;
 import com.connect.acts.ActsConnectBackend.model.Post;
 import com.connect.acts.ActsConnectBackend.model.User;
 import com.connect.acts.ActsConnectBackend.repo.PostRepo;
@@ -44,5 +45,18 @@ public class PostService {
     }
 
     return posts;
+  }
+
+  public PostDTO createPost(User user, PostRequestDTO postRequestDTO) {
+    Post post = new Post();
+    post.setTitle(postRequestDTO.getTitle());
+    post.setContent(postRequestDTO.getContent());
+    post.setUser(user);
+    post.setDummy(false);
+
+    postRepo.save(post);
+
+    PostDTO postDTO = new PostDTO(post.getId(), post.getTitle(), post.getContent(), post.isDummy(), post.getCreatedAt(), post.getUpdatedAt(), post.getUser().getId(), post.getUser().getName());
+    return postDTO;
   }
 }

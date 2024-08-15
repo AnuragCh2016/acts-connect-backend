@@ -1,9 +1,6 @@
 package com.connect.acts.ActsConnectBackend.controller;
 
-import com.connect.acts.ActsConnectBackend.dto.PostDTO;
-import com.connect.acts.ActsConnectBackend.dto.PostResponse;
-import com.connect.acts.ActsConnectBackend.dto.UserResponseDTO;
-import com.connect.acts.ActsConnectBackend.dto.UserSearchRequest;
+import com.connect.acts.ActsConnectBackend.dto.*;
 import com.connect.acts.ActsConnectBackend.model.User;
 import com.connect.acts.ActsConnectBackend.service.PostService;
 import com.connect.acts.ActsConnectBackend.service.UserService;
@@ -30,6 +27,9 @@ public class UserController {
     this.postService = postService;
   }
 
+  // for posts
+
+  //get posts
   @GetMapping("/posts")
   public ResponseEntity<PostResponse> getPosts(@RequestHeader("Authorization") String token) {
     // if token is Bearer type remove it
@@ -51,6 +51,27 @@ public class UserController {
 
     // return response
     return ResponseEntity.ok(postResponse);
+  }
+
+  // create a post
+  @PostMapping("/post/create")
+  public ResponseEntity<PostDTO> createPost(@RequestHeader("Authorization") String token, @RequestBody PostRequestDTO postRequestDTO) {
+    // if token is Bearer type remove it
+    if (token.startsWith("Bearer ")) {
+      token = token.substring(7);
+    }
+
+    // extract email
+    String email = jwtUtil.extractEmail(token);
+
+    // get User
+    User user = userService.findByEmail(email);
+
+    // create post
+    PostDTO post = postService.createPost(user, postRequestDTO);
+
+    // return response
+    return ResponseEntity.ok(post);
   }
 
   @PostMapping("/follow/{userId}")
