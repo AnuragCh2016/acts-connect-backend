@@ -1,10 +1,6 @@
 package com.connect.acts.ActsConnectBackend.controller;
 
 import com.connect.acts.ActsConnectBackend.dto.*;
-import com.connect.acts.ActsConnectBackend.dto.CommentRequest;
-import com.connect.acts.ActsConnectBackend.dto.CommentResponse;
-import com.connect.acts.ActsConnectBackend.dto.PostDTO;
-import com.connect.acts.ActsConnectBackend.dto.PostResponse;
 import com.connect.acts.ActsConnectBackend.model.Comment;
 import com.connect.acts.ActsConnectBackend.model.Post;
 import com.connect.acts.ActsConnectBackend.model.User;
@@ -25,13 +21,9 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/user")
 public class UserController {
     private final JwtUtil jwtUtil;
-
     private final UserService userService;
-
     private final PostService postService;
-
     private final CommentService commentService;
-
 
     public UserController(JwtUtil jwtUtil, UserService userService, PostService postService, CommentService commentService) {
         this.jwtUtil = jwtUtil;
@@ -40,172 +32,136 @@ public class UserController {
         this.commentService = commentService;
     }
 
-    // for posts
-
-    //get posts
+    // Get posts
     @GetMapping("/posts")
     public ResponseEntity<PostResponse> getPosts(@RequestHeader("Authorization") String token) {
-        // if token is Bearer type remove it
-        if (token.startsWith("Bearer ")) {
-            token = token.substring(7);
-        }
-
-        // extract email
-        String email = jwtUtil.extractEmail(token);
-
-        // get User
+        String email = extractEmailFromToken(token);
         User user = userService.findByEmail(email);
-
-        // fetch posts
         List<PostDTO> posts = postService.getPosts(user);
-
-        // create response
         PostResponse postResponse = new PostResponse(200, posts);
-
-        // return response
         return ResponseEntity.ok(postResponse);
     }
 
-    // create a post
+    // Create a post
     @PostMapping("/post/create")
     public ResponseEntity<PostDTO> createPost(@RequestHeader("Authorization") String token, @RequestBody PostRequestDTO postRequestDTO) {
-        // if token is Bearer type remove it
-        if (token.startsWith("Bearer ")) {
-            token = token.substring(7);
-        }
-
-        // extract email
-        String email = jwtUtil.extractEmail(token);
-
-        // get User
+        String email = extractEmailFromToken(token);
         User user = userService.findByEmail(email);
-
-        // create post
         PostDTO post = postService.createPost(user, postRequestDTO);
-
-        // return response
         return ResponseEntity.ok(post);
     }
 
+    // Follow a user
     @PostMapping("/follow/{userId}")
     public ResponseEntity<String> followUser(@RequestHeader("Authorization") String token, @PathVariable UUID userId) {
-        // Extract the email from the token
         String email = extractEmailFromToken(token);
-
-        // Get the logged-in user
         User loggedInUser = userService.findByEmail(email);
-
-        // Find the user to follow
         User userToFollow = userService.findById(userId);
 
         if (userToFollow == null) {
             return ResponseEntity.badRequest().body("User not found.");
-        } else if (userToFollow == loggedInUser) {
+        } else if (userToFollow.equals(loggedInUser)) {
             return ResponseEntity.badRequest().body("You cannot follow yourself.");
         } else if (loggedInUser.getFollowing().contains(userToFollow)) {
             return ResponseEntity.badRequest().body("You are already following this user.");
         }
 
-        // Perform the follow action
         userService.followUser(loggedInUser, userToFollow);
-
         return ResponseEntity.ok("Successfully followed the user.");
     }
 
+    // Unfollow a user
     @PostMapping("/unfollow/{userId}")
     public ResponseEntity<String> unfollowUser(@RequestHeader("Authorization") String token, @PathVariable UUID userId) {
-        // Extract the email from the token
         String email = extractEmailFromToken(token);
-
-        // Get the logged-in user
         User loggedInUser = userService.findByEmail(email);
-
-        // Find the user to unfollow
         User userToUnfollow = userService.findById(userId);
 
         if (userToUnfollow == null) {
             return ResponseEntity.badRequest().body("User not found.");
-        }
-
-        // Check if the user is part of the following list
-        if (!loggedInUser.getFollowing().contains(userToUnfollow)) {
+        } else if (!loggedInUser.getFollowing().contains(userToUnfollow)) {
             return ResponseEntity.badRequest().body("User is not in your following list.");
         }
 
-        // Perform the unfollow action
         userService.unfollowUser(loggedInUser, userToUnfollow);
-
         return ResponseEntity.ok("Successfully unfollowed the user.");
     }
 
-
+    // Create a comment
     @PostMapping("/comment/create")
     public ResponseEntity<CommentResponse> createComment(
             @RequestHeader("Authorization") String token,
-            @RequestBody @Valid CommentRequest commentRequest
-    ) {
+            @RequestBody @Valid CommentRequest commentRequest) {
         String email = extractEmailFromToken(token);
         User user = userService.findByEmail(email);
         Post post = postService.findById(commentRequest.getPostId());
+
         if (user == null || post == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         CommentResponse commentResponse = commentService.createComment(user, post, commentRequest);
-//    CommentResponse response = new CommentResponse(comment.getId(), comment.getText(), comment.getCreatedAt());
-
         return new ResponseEntity<>(commentResponse, HttpStatus.CREATED);
     }
 
-
-    private String extractEmailFromToken(String token) {
-        if (token.startsWith("Bearer ")) {
-            token = token.substring(7);
-        }
-        return jwtUtil.extractEmail(token);
-    }
-
     // Edit a comment
-    @PutMapping("/comment/edit/{commentId}")
+    @PutMapping("/comment/edit/{postId}")
     public ResponseEntity<CommentResponse> editComment(
             @RequestHeader("Authorization") String token,
-            @PathVariable UUID commentId,
-            @RequestBody @Valid CommentRequest commentRequest
-    ) {
+            @PathVariable UUID postId,
+            @RequestBody @Valid CommentRequest commentRequest) {
         String email = extractEmailFromToken(token);
         User user = userService.findByEmail(email);
-        Comment comment = commentService.findById(commentId);
-        if (comment == null || !comment.getUser().getId().equals(user.getId())) {
+        Post post = postService.findById(postId);
+
+        if (post == null || !post.getUser().getId().equals(user.getId())) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
+
+        Comment comment = post.getComments().stream()
+                .filter(c -> c.getId().equals(commentRequest.getCommentId()))
+                .findFirst()
+                .orElse(null);
+
+        if (comment == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
         CommentResponse updatedComment = commentService.editComment(comment, commentRequest);
         return new ResponseEntity<>(updatedComment, HttpStatus.OK);
     }
 
     // Delete a comment
-    @DeleteMapping("/comment/delete/{commentId}")
-    public ResponseEntity<String> deleteComment(
+    @DeleteMapping("/comment/delete/{postId}")
+    public ResponseEntity<Void> deleteComment(
             @RequestHeader("Authorization") String token,
-            @PathVariable UUID commentId
-    ) {
+            @PathVariable UUID postId,
+            @RequestBody @Valid CommentRequest commentRequest) {
         String email = extractEmailFromToken(token);
         User user = userService.findByEmail(email);
-        Comment comment = commentService.findById(commentId);
-        if (comment == null || !comment.getUser().getId().equals(user.getId())) {
+        Post post = postService.findById(postId);
+
+        if (post == null || !post.getUser().getId().equals(user.getId())) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
+
+        Comment comment = post.getComments().stream()
+                .filter(c -> c.getId().equals(commentRequest.getCommentId()))
+                .findFirst()
+                .orElse(null);
+
+        if (comment == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
         commentService.deleteComment(comment);
-        return ResponseEntity.ok("Comment deleted successfully.");
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-
+    // Search for users
     @PostMapping("/search")
     public ResponseEntity<List<UUID>> searchUsers(@RequestHeader("Authorization") String token, @RequestBody UserSearchRequest searchRequest) {
-
-        // Extract the email from the token
         String email = extractEmailFromToken(token);
-
-        // Check logged in user
         User loggedInUser = userService.findByEmail(email);
 
         if (loggedInUser == null) {
@@ -213,16 +169,11 @@ public class UserController {
         }
 
         List<User> users = userService.searchUsers(searchRequest);
-
-        List<UUID> userIds = users.stream()
-                .map(User::getId)
-                .collect(Collectors.toList());
-
+        List<UUID> userIds = users.stream().map(User::getId).collect(Collectors.toList());
         return new ResponseEntity<>(userIds, HttpStatus.OK);
     }
 
-    // frontend can make a call to this endpoint to get the user details by id for each id
-    // gotten from /search
+    // Get user by ID
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDTO> getUser(@PathVariable UUID id) {
         User user = userService.findById(id);
@@ -241,5 +192,12 @@ public class UserController {
         );
 
         return ResponseEntity.ok(userResponseDTO);
+    }
+
+    private String extractEmailFromToken(String token) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+        return jwtUtil.extractEmail(token);
     }
 }
