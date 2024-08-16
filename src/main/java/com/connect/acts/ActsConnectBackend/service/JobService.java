@@ -1,5 +1,6 @@
 package com.connect.acts.ActsConnectBackend.service;
 
+import com.connect.acts.ActsConnectBackend.dto.JobApplicationDTO;
 import com.connect.acts.ActsConnectBackend.dto.JobDTO;
 import com.connect.acts.ActsConnectBackend.dto.JobRequestDTO;
 import com.connect.acts.ActsConnectBackend.model.Job;
@@ -67,4 +68,16 @@ public class JobService {
     public List<JobDTO> getJobs() {
         return jobRepo.findAll().stream().map(JobDTO::new).collect(Collectors.toList());
     }
+
+    public boolean applyForJob(User user, JobApplicationDTO jobApplicationDTO) {
+        Job job = jobRepo.findById(jobApplicationDTO.getJobId()).orElse(null);
+        if (job == null) {
+            return false;
+        }
+
+        //TODO - Complete the functionality for the method
+
+        return true;  // Assuming the application was successfully processed
+    }
+
 }
