@@ -5,6 +5,7 @@ import com.connect.acts.ActsConnectBackend.model.Comment;
 import com.connect.acts.ActsConnectBackend.model.Post;
 import com.connect.acts.ActsConnectBackend.model.User;
 import com.connect.acts.ActsConnectBackend.service.CommentService;
+import com.connect.acts.ActsConnectBackend.service.JobService;
 import com.connect.acts.ActsConnectBackend.service.PostService;
 import com.connect.acts.ActsConnectBackend.service.UserService;
 import com.connect.acts.ActsConnectBackend.utils.JwtUtil;
@@ -24,12 +25,78 @@ public class UserController {
     private final UserService userService;
     private final PostService postService;
     private final CommentService commentService;
+    private final JobService jobService;
 
-    public UserController(JwtUtil jwtUtil, UserService userService, PostService postService, CommentService commentService) {
+    public UserController(JwtUtil jwtUtil, UserService userService, PostService postService, CommentService commentService, JobService jobService) {
         this.jwtUtil = jwtUtil;
         this.userService = userService;
         this.postService = postService;
         this.commentService = commentService;
+        this.jobService = jobService;
+    }
+
+    // Create a job posting
+    @PostMapping("/job/create")
+    public ResponseEntity<JobDTO> createJob(@RequestHeader("Authorization") String token, @RequestBody @Valid JobRequestDTO jobRequestDTO) {
+        String email = extractEmailFromToken(token);
+        User user = userService.findByEmail(email);
+
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        JobDTO job = jobService.createJob(user, jobRequestDTO);
+        return new ResponseEntity<>(job, HttpStatus.CREATED);
+    }
+
+    // Get all job postings
+    @GetMapping("/jobs")
+    public ResponseEntity<List<JobDTO>> getJobs(@RequestHeader("Authorization") String token) {
+        String email = extractEmailFromToken(token);
+        User user = userService.findByEmail(email);
+
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        List<JobDTO> jobs = jobService.getJobs();
+        return ResponseEntity.ok(jobs);
+    }
+
+    // Update a job posting
+    @PutMapping("/job/update/{jobId}")
+    public ResponseEntity<JobDTO> updateJob(@RequestHeader("Authorization") String token, @PathVariable UUID jobId, @RequestBody @Valid JobRequestDTO jobRequestDTO) {
+        String email = extractEmailFromToken(token);
+        User user = userService.findByEmail(email);
+
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        JobDTO updatedJob = jobService.updateJob(user, jobId, jobRequestDTO);
+        if (updatedJob == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return ResponseEntity.ok(updatedJob);
+    }
+
+    // Delete a job posting
+    @DeleteMapping("/job/delete/{jobId}")
+    public ResponseEntity<Void> deleteJob(@RequestHeader("Authorization") String token, @PathVariable UUID jobId) {
+        String email = extractEmailFromToken(token);
+        User user = userService.findByEmail(email);
+
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        boolean isDeleted = jobService.deleteJob(user, jobId);
+        if (!isDeleted) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     // Get posts
