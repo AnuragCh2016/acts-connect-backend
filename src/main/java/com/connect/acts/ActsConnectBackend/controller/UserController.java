@@ -99,6 +99,25 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    // Apply for Jobs
+    @PostMapping("/jobs/apply")
+    public ResponseEntity<String> applyForJob(@RequestHeader("Authorization") String token, @Valid JobApplicationDTO jobApplicationDTO) {
+        String email = extractEmailFromToken(token);
+        User user = userService.findByEmail(email);
+
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        boolean applied = jobService.applyForJob(user, jobApplicationDTO);
+        if (!applied) {
+            return new ResponseEntity<>("Job not found or application failed.", HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>("Application Successful.", HttpStatus.OK);
+
+    }
+
     // Get posts
     @GetMapping("/posts")
     public ResponseEntity<PostResponse> getPosts(@RequestHeader("Authorization") String token) {
