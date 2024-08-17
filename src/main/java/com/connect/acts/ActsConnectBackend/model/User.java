@@ -74,5 +74,5 @@ public class User {
   private String profilePictureUrl;
 
   @Column
-  private boolean approved = false;
+  private boolean approved;
 }

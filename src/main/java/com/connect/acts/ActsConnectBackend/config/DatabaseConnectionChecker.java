@@ -12,15 +12,15 @@ public class DatabaseConnectionChecker {
 
   private final DataSource dataSource;
 
-  public DatabaseConnectionChecker(DataSource dataSource) {
+  public DatabaseConnectionChecker(final DataSource dataSource) {
     this.dataSource = dataSource;
   }
 
   @PostConstruct
   public void checkConnection() throws SQLException {
-    try (Connection connection = dataSource.getConnection()) {
+    try (final Connection connection = this.dataSource.getConnection()) {
       System.out.println("Database connection established successfully!");
-    } catch (SQLException e) {
+    } catch (final SQLException e) {
       System.err.println("Failed to establish database connection.");
       e.printStackTrace();
     }

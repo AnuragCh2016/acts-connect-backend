@@ -43,22 +43,22 @@ public class RegisterRequest {
   private String company;
 
   // Getters and Setters
-  public UserType getUserType(){
-    if(userType == null){
-      userType = calculateUserType();
+  public UserType getUserType() {
+    if (null == this.userType) {
+      this.userType = this.calculateUserType();
     }
-    return userType;
+    return this.userType;
   }
 
   public UserType calculateUserType() {
-    LocalDate currentDate = LocalDate.now();
-    LocalDate programEndDate = LocalDate.of(batchYear, getSemesterMonth(batchSemester), 1); // Assuming program starts on 1st
+    final LocalDate currentDate = LocalDate.now();
+    final LocalDate programEndDate = LocalDate.of(this.batchYear, this.getSemesterMonth(this.batchSemester), 1); // Assuming program starts on 1st
 
     return programEndDate.plusMonths(6).isBefore(currentDate) ? UserType.ALUMNI : UserType.STUDENT;
   }
 
-  private Month getSemesterMonth(BatchSemester semester) {
-    return semester == BatchSemester.MARCH ? Month.MARCH : Month.SEPTEMBER;
+  private Month getSemesterMonth(final BatchSemester semester) {
+    return BatchSemester.MARCH == semester ? Month.MARCH : Month.SEPTEMBER;
   }
 
 }

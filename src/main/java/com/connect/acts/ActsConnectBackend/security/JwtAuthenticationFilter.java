@@ -7,6 +7,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -22,25 +23,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   private final JwtUtil jwtUtil;
   private final UserService userService;
 
-  public JwtAuthenticationFilter(JwtUtil jwtUtil, UserService userService) {
+  public JwtAuthenticationFilter(final JwtUtil jwtUtil, final UserService userService) {
     this.jwtUtil = jwtUtil;
     this.userService = userService;
   }
 
   @Override
-  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+  protected void doFilterInternal(@NonNull final HttpServletRequest request, @NonNull final HttpServletResponse response, @NonNull final FilterChain filterChain) throws ServletException, IOException {
     final String authHeader = request.getHeader("Authorization");
     String email = null;
     String jwtToken = null;
 
-    if (authHeader != null && authHeader.startsWith("Bearer ")) {
+    if (null != authHeader && authHeader.startsWith("Bearer ")) {
       jwtToken = authHeader.substring(7);
-      email = jwtUtil.extractEmail(jwtToken);
+      email = this.jwtUtil.extractEmail(jwtToken);
     }
 
-    if (email != null && jwtUtil.validateToken(jwtToken, email) && SecurityContextHolder.getContext().getAuthentication() == null) {
-      UserType userType = userService.getUserTypeByEmail(email);
-      UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+    if (null != email && this.jwtUtil.validateToken(jwtToken, email) && null == SecurityContextHolder.getContext().getAuthentication()) {
+      final UserType userType = this.userService.getUserTypeByEmail(email);
+      final UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
         email, null, new ArrayList<>());
       authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 

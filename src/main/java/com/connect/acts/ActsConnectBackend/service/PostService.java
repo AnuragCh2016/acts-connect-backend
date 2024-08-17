@@ -12,83 +12,80 @@ import java.util.stream.Collectors;
 
 @Service
 public class PostService {
-  private final PostRepo postRepo;
+    private final PostRepo postRepo;
 
-  private final UserService userService;
+    private final UserService userService;
 
-  public PostService(PostRepo postRepo, UserService userService) {
-    this.postRepo = postRepo;
-    this.userService = userService;
-  }
-
-  public List<PostDTO> getPosts(User user) {
-    Set<User> followingUsers = userService.getFollowing(user); // Get the users the logged-in user is following
-    long followingCount = followingUsers.size();
-
-    List<PostDTO> posts;
-    if (followingCount < 3) {
-      List<PostDTO> dummyPosts = postRepo.findDummyPosts();
-      List<PostDTO> recentPosts = postRepo.findRecentPosts(followingUsers);
-      posts = new ArrayList<>();
-      posts.addAll(dummyPosts);
-      posts.addAll(recentPosts);
-
-      // sort posts in descending oder
-      posts = posts.stream()
-        .sorted(Comparator.comparing(PostDTO::getCreatedAt).reversed())
-        .collect(Collectors.toList());
-    } else {
-      posts = postRepo.findRecentPosts(followingUsers);
+    public PostService(final PostRepo postRepo, final UserService userService) {
+        this.postRepo = postRepo;
+        this.userService = userService;
     }
 
-    return posts;
-  }
+    public List<PostDTO> getPosts(final User user) {
+        final Set<User> followingUsers = this.userService.getFollowing(user); // Get the users the logged-in user is following
+        final long followingCount = followingUsers.size();
 
-  public PostDTO createPost(User user, PostRequestDTO postRequestDTO) {
-    Post post = new Post();
-    post.setTitle(postRequestDTO.getTitle());
-    post.setContent(postRequestDTO.getContent());
-    post.setUser(user);
-    post.setDummy(false);
+        List<PostDTO> posts;
+        if (3 > followingCount) {
+            final List<PostDTO> dummyPosts = this.postRepo.findDummyPosts();
+            final List<PostDTO> recentPosts = this.postRepo.findRecentPosts(followingUsers);
+            posts = new ArrayList<>();
+            posts.addAll(dummyPosts);
+            posts.addAll(recentPosts);
 
-    postRepo.save(post);
+            // sort posts in descending oder
+            posts = posts.stream()
+                    .sorted(Comparator.comparing(PostDTO::getCreatedAt).reversed())
+                    .collect(Collectors.toList());
+        } else {
+            posts = this.postRepo.findRecentPosts(followingUsers);
+        }
 
-    PostDTO postDTO = new PostDTO(post.getId(), post.getTitle(), post.getContent(), post.isDummy(), post.getCreatedAt(), post.getUpdatedAt(), post.getUser().getId(), post.getUser().getName());
-    return postDTO;
-  }
+        return posts;
+    }
 
-  public Post findById(UUID postId) {
-    Optional<Post> post = postRepo.findById(postId);
-    return post.orElse(null); // or throw an exception if preferred
-  }
-
-  public PostDTO editPost(User user, UUID postId, PostRequestDTO postRequestDTO) {
-    Optional<Post> postOptional = postRepo.findById(postId);
-
-    if (postOptional.isPresent()) {
-      Post post = postOptional.get();
-      if (post.getUser().equals(user)) {
+    public PostDTO createPost(final User user, final PostRequestDTO postRequestDTO) {
+        final Post post = new Post();
         post.setTitle(postRequestDTO.getTitle());
         post.setContent(postRequestDTO.getContent());
-        post = postRepo.save(post);
-        return new PostDTO(post.getId(), post.getTitle(), post.getContent(), post.getCreatedAt(), post.getUser().getId());
-      }
+        post.setUser(user);
+        post.setDummy(false);
+
+        this.postRepo.save(post);
+
+        return new PostDTO(post.getId(), post.getTitle(), post.getContent(), post.isDummy(), post.getCreatedAt(), post.getUpdatedAt(), post.getUser().getId(), post.getUser().getName());
     }
-    return null;
-  }
 
-  public boolean deletePost(User user, UUID postId) {
-    Optional<Post> postOptional = postRepo.findById(postId);
-
-    if (postOptional.isPresent()) {
-      Post post = postOptional.get();
-      if (post.getUser().equals(user)) {
-        postRepo.delete(post);
-        return true;
-      }
+    public Post findById(final UUID postId) {
+        final Optional<Post> post = this.postRepo.findById(postId);
+        return post.orElse(null); // or throw an exception if preferred
     }
-    return false;
-  }
 
+    public PostDTO editPost(final User user, final UUID postId, final PostRequestDTO postRequestDTO) {
+        final Optional<Post> postOptional = this.postRepo.findById(postId);
 
+        if (postOptional.isPresent()) {
+            Post post = postOptional.get();
+            if (post.getUser().equals(user)) {
+                post.setTitle(postRequestDTO.getTitle());
+                post.setContent(postRequestDTO.getContent());
+                post = this.postRepo.save(post);
+                return new PostDTO(post.getId(), post.getTitle(), post.getContent(), post.getCreatedAt(), post.getUser().getId());
+            }
+        }
+        return null;
+    }
+
+    public boolean deletePost(final User user, final UUID postId) {
+        final Optional<Post> postOptional = this.postRepo.findById(postId);
+
+        if (postOptional.isPresent()) {
+            final Post post = postOptional.get();
+            if (post.getUser().equals(user)) {
+                this.postRepo.delete(post);
+                return true;
+            }
+        }
+        return false;
+    }
 }
