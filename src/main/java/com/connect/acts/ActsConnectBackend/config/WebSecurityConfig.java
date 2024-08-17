@@ -26,8 +26,9 @@ public class WebSecurityConfig {
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
   private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
-  @Value("${CORS_ORIGINS}")
+  @Value("${CORS_ORIGINS:http://localhost:3000}") // Default value if the environment variable is not set
   private String allowedOrigins;
+
 
   @Autowired
   public WebSecurityConfig(final JwtAuthenticationFilter jwtAuthenticationFilter, final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint) {
