@@ -1,7 +1,6 @@
 package com.connect.acts.ActsConnectBackend.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 

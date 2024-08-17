@@ -15,20 +15,20 @@ public class AuthService {
   private final BCryptPasswordEncoder bCryptPasswordEncoder;
   private final JwtUtil jwtUtil;
 
-  public AuthService(AuthRepo authRepo) {
+  public AuthService(final AuthRepo authRepo) {
     this.authRepo = authRepo;
-    this.bCryptPasswordEncoder = new BCryptPasswordEncoder();
-    this.jwtUtil = new JwtUtil();
+      this.bCryptPasswordEncoder = new BCryptPasswordEncoder();
+      this.jwtUtil = new JwtUtil();
   }
 
-  public UserResponse registerUser(RegisterRequest registerRequest) {
+  public UserResponse registerUser(final RegisterRequest registerRequest) {
     // register user
-    if(authRepo.findByEmail(registerRequest.getEmail()).isPresent()) {
+    if(this.authRepo.findByEmail(registerRequest.getEmail()).isPresent()) {
       throw new RuntimeException("Email already exists");
     }
-    User user = new User();
+    final User user = new User();
     user.setEmail(registerRequest.getEmail());
-    user.setPassword(bCryptPasswordEncoder.encode(registerRequest.getPassword()));
+    user.setPassword(this.bCryptPasswordEncoder.encode(registerRequest.getPassword()));
     user.setUserType(registerRequest.getUserType());
     user.setName(registerRequest.getName());
     user.setBatchYear(registerRequest.getBatchYear());
@@ -36,39 +36,39 @@ public class AuthService {
     user.setCourseType(registerRequest.getCourseType());
 
     // Set PRN if present
-    if (registerRequest.getPrn() != null) {
+    if (null != registerRequest.getPrn()) {
       user.setPrn(registerRequest.getPrn());
     }
 
     // set company if present
-    if (registerRequest.getCompany() != null) {
+    if (null != registerRequest.getCompany()) {
       user.setCompany(registerRequest.getCompany());
     }
 
-    authRepo.save(user);
+      this.authRepo.save(user);
 
     //generate jwt token
-    String jwtToken = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getUserType());
+    final String jwtToken = this.jwtUtil.generateToken(user.getId(), user.getEmail(), user.getUserType());
 
-    UserResponse response = new UserResponse();
+    final UserResponse response = new UserResponse();
     response.setJwtToken(jwtToken);
     response.setStatus(201);
     return response;
 
   }
 
-  public UserResponse loginUser(LoginRequest loginRequest) {
+  public UserResponse loginUser(final LoginRequest loginRequest) {
     // login logic
-    User user = authRepo.findByEmail(loginRequest.getEmail())
+    final User user = this.authRepo.findByEmail(loginRequest.email())
       .orElseThrow(() -> new RuntimeException("Invalid credentials"));
 
-    if (!bCryptPasswordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+    if (!this.bCryptPasswordEncoder.matches(loginRequest.password(), user.getPassword())) {
       throw new RuntimeException("Invalid credentials");
     }
 
     // successful login
-    String jwtToken = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getUserType());
-    UserResponse response = new UserResponse();
+    final String jwtToken = this.jwtUtil.generateToken(user.getId(), user.getEmail(), user.getUserType());
+    final UserResponse response = new UserResponse();
     response.setJwtToken(jwtToken);
     response.setStatus(200);
     return response;

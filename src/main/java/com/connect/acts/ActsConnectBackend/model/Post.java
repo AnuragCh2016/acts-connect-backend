@@ -42,7 +42,7 @@ public class Post {
   private Set<User> likedByUsers;
 
   @Column
-  private boolean isDummy = false; // Indicates if the post is a dummy post
+  private boolean isDummy; // Indicates if the post is a dummy post
 
   @Transient
   private int numberOfLikes; // Not persisted, used for displaying likes count
@@ -55,11 +55,11 @@ public class Post {
 
   @PrePersist
   protected void onCreate() {
-    createdAt = LocalDateTime.now();
+      this.createdAt = LocalDateTime.now();
   }
 
   @PreUpdate
   protected void onUpdate() {
-    updatedAt = LocalDateTime.now();
+      this.updatedAt = LocalDateTime.now();
   }
 }

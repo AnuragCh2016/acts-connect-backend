@@ -7,8 +7,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class ActsConnectBackendApplication {
 
-	public static void main(String[] args) {
-		Dotenv dotenv = Dotenv.load();
+	public static void main(final String[] args) {
+		final Dotenv dotenv = Dotenv.load();
 		// set environment variables for prod
 		System.setProperty("PROD_DB_URL", dotenv.get("PROD_DB_URL"));
 		System.setProperty("PROD_DB_UNAME", dotenv.get("PROD_DB_UNAME"));

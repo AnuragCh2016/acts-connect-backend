@@ -22,7 +22,7 @@ public class PostDTO {
   private UUID userId; // minimal user info
   private String name; // minimal user info
 
-  public PostDTO(UUID id, String title, String content, LocalDateTime createdAt, UUID id1) {
+  public PostDTO(final UUID id, final String title, final String content, final LocalDateTime createdAt, final UUID id1) {
 
   }
 }

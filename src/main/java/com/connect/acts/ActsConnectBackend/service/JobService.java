@@ -17,12 +17,12 @@ import java.util.stream.Collectors;
 public class JobService {
     private final JobRepo jobRepo;
 
-    public JobService(JobRepo jobRepo) {
+    public JobService(final JobRepo jobRepo) {
         this.jobRepo = jobRepo;
     }
 
-    public JobDTO createJob(User user, JobRequestDTO jobRequestDTO) {
-        Job job = new Job();
+    public JobDTO createJob(final User user, final JobRequestDTO jobRequestDTO) {
+        final Job job = new Job();
         job.setCompanyName(jobRequestDTO.getCompanyName());
         job.setJobTitle(jobRequestDTO.getJobTitle());
         job.setJobDescription(jobRequestDTO.getJobDescription());
@@ -33,21 +33,21 @@ public class JobService {
         job.setNumOpenPositions(jobRequestDTO.getNumOpenPositions());
         job.setApplicationLink(job.getApplicationLink());
         job.setJobStatus(jobRequestDTO.getJobStatus());
-        Job savedJob = jobRepo.save(job);
+        final Job savedJob = this.jobRepo.save(job);
         return new JobDTO(savedJob);
     }
 
-    public boolean deleteJob(User user, UUID jobId) {
-        if (jobRepo.existsById(jobId)) {
-            jobRepo.deleteById(jobId);
+    public boolean deleteJob(final User user, final UUID jobId) {
+        if (this.jobRepo.existsById(jobId)) {
+            this.jobRepo.deleteById(jobId);
             return true;
         }
         return false;
     }
 
-    public JobDTO updateJob(User user, UUID jobId, @Valid JobRequestDTO jobRequestDTO) {
-        if (jobRepo.existsById(jobId)) {
-            Job job = jobRepo.findById(jobId).orElseThrow(() -> new RuntimeException("Job not found"));
+    public JobDTO updateJob(final User user, final UUID jobId, @Valid final JobRequestDTO jobRequestDTO) {
+        if (this.jobRepo.existsById(jobId)) {
+            final Job job = this.jobRepo.findById(jobId).orElseThrow(() -> new RuntimeException("Job not found"));
             job.setCompanyName(jobRequestDTO.getCompanyName());
             job.setJobTitle(jobRequestDTO.getJobTitle());
             job.setJobDescription(jobRequestDTO.getJobDescription());
@@ -58,7 +58,7 @@ public class JobService {
             job.setNumOpenPositions(jobRequestDTO.getNumOpenPositions());
             job.setApplicationLink(jobRequestDTO.getApplicationLink());
             job.setJobStatus(jobRequestDTO.getJobStatus());
-            Job updatedJob = jobRepo.save(job);
+            final Job updatedJob = this.jobRepo.save(job);
             return new JobDTO(updatedJob);
         } else {
             throw new RuntimeException("Job not found");
@@ -66,18 +66,15 @@ public class JobService {
     }
 
     public List<JobDTO> getJobs() {
-        return jobRepo.findAll().stream().map(JobDTO::new).collect(Collectors.toList());
+        return this.jobRepo.findAll().stream().map(JobDTO::new).collect(Collectors.toList());
     }
 
-    public boolean applyForJob(User user, JobApplicationDTO jobApplicationDTO) {
-        Job job = jobRepo.findById(jobApplicationDTO.getJobId()).orElse(null);
-        if (job == null) {
-            return false;
-        }
+    public boolean applyForJob(final User user, final JobApplicationDTO jobApplicationDTO) {
+        final Job job = this.jobRepo.findById(jobApplicationDTO.getJobId()).orElse(null);
+        return null != job;
 
         //TODO - Complete the functionality for the method
-
-        return true;  // Assuming the application was successfully processed
+// Assuming the application was successfully processed
     }
 
 }

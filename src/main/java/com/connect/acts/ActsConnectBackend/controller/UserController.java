@@ -27,7 +27,7 @@ public class UserController {
     private final CommentService commentService;
     private final JobService jobService;
 
-    public UserController(JwtUtil jwtUtil, UserService userService, PostService postService, CommentService commentService, JobService jobService) {
+    public UserController(final JwtUtil jwtUtil, final UserService userService, final PostService postService, final CommentService commentService, final JobService jobService) {
         this.jwtUtil = jwtUtil;
         this.userService = userService;
         this.postService = postService;
@@ -37,44 +37,44 @@ public class UserController {
 
     // Create a job posting
     @PostMapping("/job/create")
-    public ResponseEntity<JobDTO> createJob(@RequestHeader("Authorization") String token, @RequestBody @Valid JobRequestDTO jobRequestDTO) {
-        String email = extractEmailFromToken(token);
-        User user = userService.findByEmail(email);
+    public ResponseEntity<JobDTO> createJob(@RequestHeader("Authorization") final String token, @RequestBody @Valid final JobRequestDTO jobRequestDTO) {
+        final String email = this.extractEmailFromToken(token);
+        final User user = this.userService.findByEmail(email);
 
-        if (user == null) {
+        if (null == user) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        JobDTO job = jobService.createJob(user, jobRequestDTO);
+        final JobDTO job = this.jobService.createJob(user, jobRequestDTO);
         return new ResponseEntity<>(job, HttpStatus.CREATED);
     }
 
     // Get all job postings
     @GetMapping("/jobs")
-    public ResponseEntity<List<JobDTO>> getJobs(@RequestHeader("Authorization") String token) {
-        String email = extractEmailFromToken(token);
-        User user = userService.findByEmail(email);
+    public ResponseEntity<List<JobDTO>> getJobs(@RequestHeader("Authorization") final String token) {
+        final String email = this.extractEmailFromToken(token);
+        final User user = this.userService.findByEmail(email);
 
-        if (user == null) {
+        if (null == user) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        List<JobDTO> jobs = jobService.getJobs();
+        final List<JobDTO> jobs = this.jobService.getJobs();
         return ResponseEntity.ok(jobs);
     }
 
     // Update a job posting
     @PutMapping("/job/update/{jobId}")
-    public ResponseEntity<JobDTO> updateJob(@RequestHeader("Authorization") String token, @PathVariable UUID jobId, @RequestBody @Valid JobRequestDTO jobRequestDTO) {
-        String email = extractEmailFromToken(token);
-        User user = userService.findByEmail(email);
+    public ResponseEntity<JobDTO> updateJob(@RequestHeader("Authorization") final String token, @PathVariable final UUID jobId, @RequestBody @Valid final JobRequestDTO jobRequestDTO) {
+        final String email = this.extractEmailFromToken(token);
+        final User user = this.userService.findByEmail(email);
 
-        if (user == null) {
+        if (null == user) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        JobDTO updatedJob = jobService.updateJob(user, jobId, jobRequestDTO);
-        if (updatedJob == null) {
+        final JobDTO updatedJob = this.jobService.updateJob(user, jobId, jobRequestDTO);
+        if (null == updatedJob) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
@@ -83,15 +83,15 @@ public class UserController {
 
     // Delete a job posting
     @DeleteMapping("/job/delete/{jobId}")
-    public ResponseEntity<Void> deleteJob(@RequestHeader("Authorization") String token, @PathVariable UUID jobId) {
-        String email = extractEmailFromToken(token);
-        User user = userService.findByEmail(email);
+    public ResponseEntity<Void> deleteJob(@RequestHeader("Authorization") final String token, @PathVariable final UUID jobId) {
+        final String email = this.extractEmailFromToken(token);
+        final User user = this.userService.findByEmail(email);
 
-        if (user == null) {
+        if (null == user) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        boolean isDeleted = jobService.deleteJob(user, jobId);
+        final boolean isDeleted = this.jobService.deleteJob(user, jobId);
         if (!isDeleted) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -101,15 +101,15 @@ public class UserController {
 
     // Apply for Jobs
     @PostMapping("/jobs/apply")
-    public ResponseEntity<String> applyForJob(@RequestHeader("Authorization") String token, @Valid JobApplicationDTO jobApplicationDTO) {
-        String email = extractEmailFromToken(token);
-        User user = userService.findByEmail(email);
+    public ResponseEntity<String> applyForJob(@RequestHeader("Authorization") final String token, @Valid final JobApplicationDTO jobApplicationDTO) {
+        final String email = this.extractEmailFromToken(token);
+        final User user = this.userService.findByEmail(email);
 
-        if (user == null) {
+        if (null == user) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        boolean applied = jobService.applyForJob(user, jobApplicationDTO);
+        final boolean applied = this.jobService.applyForJob(user, jobApplicationDTO);
         if (!applied) {
             return new ResponseEntity<>("Job not found or application failed.", HttpStatus.NOT_FOUND);
         }
@@ -120,31 +120,31 @@ public class UserController {
 
     // Get posts
     @GetMapping("/posts")
-    public ResponseEntity<PostResponse> getPosts(@RequestHeader("Authorization") String token) {
-        String email = extractEmailFromToken(token);
-        User user = userService.findByEmail(email);
-        List<PostDTO> posts = postService.getPosts(user);
-        PostResponse postResponse = new PostResponse(200, posts);
+    public ResponseEntity<PostResponse> getPosts(@RequestHeader("Authorization") final String token) {
+        final String email = this.extractEmailFromToken(token);
+        final User user = this.userService.findByEmail(email);
+        final List<PostDTO> posts = this.postService.getPosts(user);
+        final PostResponse postResponse = new PostResponse(200, posts);
         return ResponseEntity.ok(postResponse);
     }
 
     // Create a post
     @PostMapping("/post/create")
-    public ResponseEntity<PostDTO> createPost(@RequestHeader("Authorization") String token, @RequestBody PostRequestDTO postRequestDTO) {
-        String email = extractEmailFromToken(token);
-        User user = userService.findByEmail(email);
-        PostDTO post = postService.createPost(user, postRequestDTO);
+    public ResponseEntity<PostDTO> createPost(@RequestHeader("Authorization") final String token, @RequestBody final PostRequestDTO postRequestDTO) {
+        final String email = this.extractEmailFromToken(token);
+        final User user = this.userService.findByEmail(email);
+        final PostDTO post = this.postService.createPost(user, postRequestDTO);
         return ResponseEntity.ok(post);
     }
 
     // Follow a user
     @PostMapping("/follow/{userId}")
-    public ResponseEntity<String> followUser(@RequestHeader("Authorization") String token, @PathVariable UUID userId) {
-        String email = extractEmailFromToken(token);
-        User loggedInUser = userService.findByEmail(email);
-        User userToFollow = userService.findById(userId);
+    public ResponseEntity<String> followUser(@RequestHeader("Authorization") final String token, @PathVariable final UUID userId) {
+        final String email = this.extractEmailFromToken(token);
+        final User loggedInUser = this.userService.findByEmail(email);
+        final User userToFollow = this.userService.findById(userId);
 
-        if (userToFollow == null) {
+        if (null == userToFollow) {
             return ResponseEntity.badRequest().body("User not found.");
         } else if (userToFollow.equals(loggedInUser)) {
             return ResponseEntity.badRequest().body("You cannot follow yourself.");
@@ -152,123 +152,123 @@ public class UserController {
             return ResponseEntity.badRequest().body("You are already following this user.");
         }
 
-        userService.followUser(loggedInUser, userToFollow);
+        this.userService.followUser(loggedInUser, userToFollow);
         return ResponseEntity.ok("Successfully followed the user.");
     }
 
     // Unfollow a user
     @PostMapping("/unfollow/{userId}")
-    public ResponseEntity<String> unfollowUser(@RequestHeader("Authorization") String token, @PathVariable UUID userId) {
-        String email = extractEmailFromToken(token);
-        User loggedInUser = userService.findByEmail(email);
-        User userToUnfollow = userService.findById(userId);
+    public ResponseEntity<String> unfollowUser(@RequestHeader("Authorization") final String token, @PathVariable final UUID userId) {
+        final String email = this.extractEmailFromToken(token);
+        final User loggedInUser = this.userService.findByEmail(email);
+        final User userToUnfollow = this.userService.findById(userId);
 
-        if (userToUnfollow == null) {
+        if (null == userToUnfollow) {
             return ResponseEntity.badRequest().body("User not found.");
         } else if (!loggedInUser.getFollowing().contains(userToUnfollow)) {
             return ResponseEntity.badRequest().body("User is not in your following list.");
         }
 
-        userService.unfollowUser(loggedInUser, userToUnfollow);
+        this.userService.unfollowUser(loggedInUser, userToUnfollow);
         return ResponseEntity.ok("Successfully unfollowed the user.");
     }
 
     // Create a comment
     @PostMapping("/comment/create")
     public ResponseEntity<CommentResponse> createComment(
-            @RequestHeader("Authorization") String token,
-            @RequestBody @Valid CommentRequest commentRequest) {
-        String email = extractEmailFromToken(token);
-        User user = userService.findByEmail(email);
-        Post post = postService.findById(commentRequest.getPostId());
+            @RequestHeader("Authorization") final String token,
+            @RequestBody @Valid final CommentRequest commentRequest) {
+        final String email = this.extractEmailFromToken(token);
+        final User user = this.userService.findByEmail(email);
+        final Post post = this.postService.findById(commentRequest.getPostId());
 
-        if (user == null || post == null) {
+        if (null == user || null == post) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        CommentResponse commentResponse = commentService.createComment(user, post, commentRequest);
+        final CommentResponse commentResponse = this.commentService.createComment(user, post, commentRequest);
         return new ResponseEntity<>(commentResponse, HttpStatus.CREATED);
     }
 
     // Edit a comment
     @PutMapping("/comment/edit/{postId}")
     public ResponseEntity<CommentResponse> editComment(
-            @RequestHeader("Authorization") String token,
-            @PathVariable UUID postId,
-            @RequestBody @Valid CommentRequest commentRequest) {
-        String email = extractEmailFromToken(token);
-        User user = userService.findByEmail(email);
-        Post post = postService.findById(postId);
+            @RequestHeader("Authorization") final String token,
+            @PathVariable final UUID postId,
+            @RequestBody @Valid final CommentRequest commentRequest) {
+        final String email = this.extractEmailFromToken(token);
+        final User user = this.userService.findByEmail(email);
+        final Post post = this.postService.findById(postId);
 
-        if (post == null || !post.getUser().getId().equals(user.getId())) {
+        if (null == post || !post.getUser().getId().equals(user.getId())) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        Comment comment = post.getComments().stream()
+        final Comment comment = post.getComments().stream()
                 .filter(c -> c.getId().equals(commentRequest.getCommentId()))
                 .findFirst()
                 .orElse(null);
 
-        if (comment == null) {
+        if (null == comment) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        CommentResponse updatedComment = commentService.editComment(comment, commentRequest);
+        final CommentResponse updatedComment = this.commentService.editComment(comment, commentRequest);
         return new ResponseEntity<>(updatedComment, HttpStatus.OK);
     }
 
     // Delete a comment
     @DeleteMapping("/comment/delete/{postId}")
     public ResponseEntity<Void> deleteComment(
-            @RequestHeader("Authorization") String token,
-            @PathVariable UUID postId,
-            @RequestBody @Valid CommentRequest commentRequest) {
-        String email = extractEmailFromToken(token);
-        User user = userService.findByEmail(email);
-        Post post = postService.findById(postId);
+            @RequestHeader("Authorization") final String token,
+            @PathVariable final UUID postId,
+            @RequestBody @Valid final CommentRequest commentRequest) {
+        final String email = this.extractEmailFromToken(token);
+        final User user = this.userService.findByEmail(email);
+        final Post post = this.postService.findById(postId);
 
-        if (post == null || !post.getUser().getId().equals(user.getId())) {
+        if (null == post || !post.getUser().getId().equals(user.getId())) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        Comment comment = post.getComments().stream()
+        final Comment comment = post.getComments().stream()
                 .filter(c -> c.getId().equals(commentRequest.getCommentId()))
                 .findFirst()
                 .orElse(null);
 
-        if (comment == null) {
+        if (null == comment) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        commentService.deleteComment(comment);
+        this.commentService.deleteComment(comment);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     // Search for users
-    @PostMapping("/search")
-    public ResponseEntity<List<UUID>> searchUsers(@RequestHeader("Authorization") String token, @RequestBody UserSearchRequest searchRequest) {
-        String email = extractEmailFromToken(token);
-        User loggedInUser = userService.findByEmail(email);
+    @GetMapping("/search")
+    public ResponseEntity<List<UUID>> searchUsers(@RequestHeader("Authorization") final String token, @RequestBody final UserSearchRequest searchRequest) {
+        final String email = this.extractEmailFromToken(token);
+        final User loggedInUser = this.userService.findByEmail(email);
 
-        if (loggedInUser == null) {
+        if (null == loggedInUser) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
 
-        List<User> users = userService.searchUsers(searchRequest);
-        List<UUID> userIds = users.stream().map(User::getId).collect(Collectors.toList());
+        final List<User> users = this.userService.searchUsers(searchRequest);
+        final List<UUID> userIds = users.stream().map(User::getId).collect(Collectors.toList());
         return new ResponseEntity<>(userIds, HttpStatus.OK);
     }
 
     // Get user by ID
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponseDTO> getUser(@PathVariable UUID id) {
-        User user = userService.findById(id);
+    public ResponseEntity<UserResponseDTO> getUser(@PathVariable final UUID id) {
+        final User user = this.userService.findById(id);
 
-        if (user == null) {
+        if (null == user) {
             return ResponseEntity.notFound().build();
         }
 
-        UserResponseDTO userResponseDTO = new UserResponseDTO(
+        final UserResponseDTO userResponseDTO = new UserResponseDTO(
                 user.getId(),
                 user.getName(),
                 user.getEmail(),
@@ -284,6 +284,6 @@ public class UserController {
         if (token.startsWith("Bearer ")) {
             token = token.substring(7);
         }
-        return jwtUtil.extractEmail(token);
+        return this.jwtUtil.extractEmail(token);
     }
 }

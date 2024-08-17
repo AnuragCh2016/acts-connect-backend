@@ -30,41 +30,41 @@ public class WebSecurityConfig {
   private String allowedOrigins;
 
   @Autowired
-  public WebSecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint) {
+  public WebSecurityConfig(final JwtAuthenticationFilter jwtAuthenticationFilter, final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint) {
     this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
   }
 
   @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+  public SecurityFilterChain securityFilterChain(final HttpSecurity http) throws Exception {
     http
-      .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+      .cors(cors -> cors.configurationSource(this.corsConfigurationSource()))
       .csrf(AbstractHttpConfigurer::disable)
       .authorizeHttpRequests(auth -> auth
         .requestMatchers("/api/auth/**","/api/home").permitAll()
         .anyRequest().authenticated()
       )
       .exceptionHandling(exception -> exception
-        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+        .authenticationEntryPoint(this.jwtAuthenticationEntryPoint)
       )
-      .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+      .addFilterBefore(this.jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
     return http.build();
   }
 
   @Bean
-  public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+  public AuthenticationManager authenticationManager(final AuthenticationConfiguration authenticationConfiguration) throws Exception {
     return authenticationConfiguration.getAuthenticationManager();
   }
 
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
-    CorsConfiguration configuration = new CorsConfiguration();
-    configuration.setAllowedOrigins(List.of(allowedOrigins.split(","))); // Adjust your allowed origins
+    final CorsConfiguration configuration = new CorsConfiguration();
+    configuration.setAllowedOrigins(List.of(this.allowedOrigins.split(","))); // Adjust your allowed origins
     configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Adjust methods
     configuration.setAllowedHeaders(List.of("*")); // Allow all headers
     configuration.setAllowCredentials(true); // Allow credentials
     return new UrlBasedCorsConfigurationSource() {{
-      registerCorsConfiguration("/**", configuration);
+        this.registerCorsConfiguration("/**", configuration);
     }};
   }
 }

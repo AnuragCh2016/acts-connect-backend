@@ -16,32 +16,32 @@ public class UserService {
   private final UserRepo userRepo;
 
   @Autowired
-  public UserService(UserRepo userRepo) {
+  public UserService(final UserRepo userRepo) {
     this.userRepo = userRepo;
   }
 
-  public User findByEmail(String email) {
-    return userRepo.findByEmail(email);
+  public User findByEmail(final String email) {
+    return this.userRepo.findByEmail(email);
   }
 
-  public UserType getUserTypeByEmail(String email) {
-    User user = userRepo.findByEmail(email);
-    return user!=null?user.getUserType():null;
+  public UserType getUserTypeByEmail(final String email) {
+    final User user = this.userRepo.findByEmail(email);
+    return null != user ?user.getUserType():null;
   }
 
-  public User findById(UUID userId) {
-    return userRepo.findById(userId).orElse(null);
+  public User findById(final UUID userId) {
+    return this.userRepo.findById(userId).orElse(null);
   }
 
-  public long countFollowing(User user) {
+  public long countFollowing(final User user) {
     return user.getFollowing().size();
   }
 
-  public Set<User> getFollowing(User user) {
+  public Set<User> getFollowing(final User user) {
     return user.getFollowing();
   }
 
-  public void followUser(User follower, User user) {
+  public void followUser(final User follower, final User user) {
     if (follower.equals(user)) {
       throw new IllegalArgumentException("Users cannot follow themselves.");
     }
@@ -49,20 +49,20 @@ public class UserService {
     follower.getFollowing().add(user);
     user.getFollowers().add(follower);
 
-    userRepo.save(follower);
-    userRepo.save(user);
+      this.userRepo.save(follower);
+      this.userRepo.save(user);
   }
 
-  public void unfollowUser(User follower, User user) {
+  public void unfollowUser(final User follower, final User user) {
     follower.getFollowing().remove(user);
     user.getFollowers().remove(follower);
 
-    userRepo.save(follower);
-    userRepo.save(user);
+      this.userRepo.save(follower);
+      this.userRepo.save(user);
   }
 
-  public List<User> searchUsers(UserSearchRequest searchRequest) {
-    return userRepo.searchUsers(
+  public List<User> searchUsers(final UserSearchRequest searchRequest) {
+    return this.userRepo.searchUsers(
       searchRequest.getName(),
       searchRequest.getMinBatchYear(),
       searchRequest.getMaxBatchYear(),
@@ -71,4 +71,3 @@ public class UserService {
     );
   }
 }
-
